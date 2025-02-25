@@ -1,0 +1,69 @@
+package bhagya.festivo.festivo.rest;
+
+import bhagya.festivo.festivo.model.ChatDTO;
+import bhagya.festivo.festivo.service.ChatService;
+import bhagya.festivo.festivo.util.ReferencedException;
+import bhagya.festivo.festivo.util.ReferencedWarning;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+@RestController
+@RequestMapping(value = "/api/chats", produces = MediaType.APPLICATION_JSON_VALUE)
+public class ChatResource {
+
+    private final ChatService chatService;
+
+    public ChatResource(final ChatService chatService) {
+        this.chatService = chatService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ChatDTO>> getAllChats() {
+        return ResponseEntity.ok(chatService.findAll());
+    }
+
+    @GetMapping("/{chatId}")
+    public ResponseEntity<ChatDTO> getChat(@PathVariable(name = "chatId") final UUID chatId) {
+        return ResponseEntity.ok(chatService.get(chatId));
+    }
+
+    @PostMapping
+    @ApiResponse(responseCode = "201")
+    public ResponseEntity<UUID> createChat(@RequestBody @Valid final ChatDTO chatDTO) {
+        final UUID createdChatId = chatService.create(chatDTO);
+        return new ResponseEntity<>(createdChatId, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{chatId}")
+    public ResponseEntity<UUID> updateChat(@PathVariable(name = "chatId") final UUID chatId,
+            @RequestBody @Valid final ChatDTO chatDTO) {
+        chatService.update(chatId, chatDTO);
+        return ResponseEntity.ok(chatId);
+    }
+
+    @DeleteMapping("/{chatId}")
+    @ApiResponse(responseCode = "204")
+    public ResponseEntity<Void> deleteChat(@PathVariable(name = "chatId") final UUID chatId) {
+        final ReferencedWarning referencedWarning = chatService.getReferencedWarning(chatId);
+        if (referencedWarning != null) {
+            throw new ReferencedException(referencedWarning);
+        }
+        chatService.delete(chatId);
+        return ResponseEntity.noContent().build();
+    }
+
+}
