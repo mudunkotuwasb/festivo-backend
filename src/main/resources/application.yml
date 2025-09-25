@@ -1,0 +1,99 @@
+server:
+  port: 4000
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: festivo-backend
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/festivo_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:festivo_user}
+    password: ${DB_PASSWORD:festivo_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+keycloak:
+  auth-server-url: ${KEYCLOAK_URL:http://localhost:8081/auth}
+  realm: ${KEYCLOAK_REALM:festivo}
+  resource: ${KEYCLOAK_CLIENT_ID:festivo-backend}
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET:}
+
+  # Admin client for service-account flows used by admin API below
+  url: ${KEYCLOAK_ADMIN_URL:http://localhost:8081}
+  admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:festivo-admin}
+  admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:CHANGE_ME}
+  vendors-group-id: ${KEYCLOAK_VENDORS_GROUP_ID:CHANGE_ME}
+  frontend-client-id: ${KEYCLOAK_FRONTEND_CLIENT_ID:festivo-frontend}
+
+firebase:
+  project-id: ${FIREBASE_PROJECT_ID:}
+  private-key: ${FIREBASE_PRIVATE_KEY:}
+  client-email: ${FIREBASE_CLIENT_EMAIL:}
+
+payhere:
+  merchant-id: ${PAYHERE_MERCHANT_ID:}
+  merchant-secret: ${PAYHERE_MERCHANT_SECRET:}
+  base-url: ${PAYHERE_BASE_URL:https://sandbox.payhere.lk}
+
+logging:
+  level:
+    com.festivo: DEBUG
+    org.springframework.security: DEBUG
+
+# Swagger/OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    filter: true
+    displayRequestDuration: true
+    showExtensions: true
+    showCommonExtensions: true
+  show-actuator: true
+  group-configs:
+    - group: 'all'
+      display-name: 'All APIs'
+      paths-to-match: '/**'
+    - group: 'vendors'
+      display-name: 'Vendor APIs'
+      paths-to-match: '/vendors/**'
+    - group: 'bookings'
+      display-name: 'Booking APIs'
+      paths-to-match: '/bookings/**'
+    - group: 'messages'
+      display-name: 'Message APIs'
+      paths-to-match: '/messages/**'
+    - group: 'reviews'
+      display-name: 'Review APIs'
+      paths-to-match: '/reviews/**'
+    - group: 'auth'
+      display-name: 'Authentication APIs'
+      paths-to-match: '/auth/**'
+
