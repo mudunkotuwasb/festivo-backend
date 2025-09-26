@@ -51,7 +51,7 @@ public abstract class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Message> messages;
     
     public enum UserType {

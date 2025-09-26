@@ -1,14 +1,12 @@
 package com.festivo.controller;
 
 import com.festivo.entity.Customer;
-import com.festivo.entity.User;
 import com.festivo.entity.Vendor;
 import com.festivo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -145,6 +143,20 @@ public class AuthController {
         response.put("message", "Logged out successfully");
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/login")
+    @Operation(summary = "Basic login (temporary)", description = "Temporary login that looks up user by email only and returns role and id. Replace with Keycloak.")
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        return userService.findUserByEmail(request.getEmail())
+                .map(user -> {
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+                    response.put("userId", user.getId());
+                    response.put("role", user.getUserType().name().toLowerCase());
+                    return ResponseEntity.ok(response);
+                })
+                .orElseGet(() -> ResponseEntity.badRequest().body(createErrorResponse("Invalid credentials")));
+    }
     
     private Map<String, Object> createErrorResponse(String message) {
         Map<String, Object> response = new HashMap<>();
@@ -213,5 +225,11 @@ public class AuthController {
         public void setWebsite(String website) { this.website = website; }
         public Vendor.VendorType getVendorType() { return vendorType; }
         public void setVendorType(Vendor.VendorType vendorType) { this.vendorType = vendorType; }
+    }
+
+    public static class LoginRequest {
+        private String email;
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
     }
 }

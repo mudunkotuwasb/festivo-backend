@@ -2,15 +2,15 @@ package com.festivo.controller;
 
 import com.festivo.entity.Booking;
 import com.festivo.entity.Customer;
-import com.festivo.entity.Payment;
 import com.festivo.entity.Vendor;
+import com.festivo.entity.TimeSlot;
 import com.festivo.service.BookingService;
 import com.festivo.service.UserService;
+import com.festivo.repository.TimeSlotRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,6 +39,8 @@ public class BookingController {
     
     @Autowired
     private UserService userService;
+    @Autowired
+    private TimeSlotRepository timeSlotRepository;
     
     @PostMapping
     @Operation(
@@ -119,6 +121,13 @@ public class BookingController {
             booking.setVendor(vendor.get());
             booking.setService(request.getService());
             booking.setEvent(request.getEvent());
+            if (request.getTimeSlotId() != null) {
+                Optional<TimeSlot> timeSlot = timeSlotRepository.findById(request.getTimeSlotId());
+                if (timeSlot.isEmpty()) {
+                    return ResponseEntity.badRequest().body(createErrorResponse("Invalid timeSlotId"));
+                }
+                booking.setTimeSlot(timeSlot.get());
+            }
             
             Booking savedBooking = bookingService.createBooking(booking);
             
@@ -261,6 +270,7 @@ public class BookingController {
         private String specialRequests;
         private com.festivo.entity.Service service;
         private com.festivo.entity.Event event;
+        private Long timeSlotId;
         
         // Getters and Setters
         public Long getCustomerId() { return customerId; }
@@ -279,6 +289,8 @@ public class BookingController {
         public void setService(com.festivo.entity.Service service) { this.service = service; }
         public com.festivo.entity.Event getEvent() { return event; }
         public void setEvent(com.festivo.entity.Event event) { this.event = event; }
+        public Long getTimeSlotId() { return timeSlotId; }
+        public void setTimeSlotId(Long timeSlotId) { this.timeSlotId = timeSlotId; }
     }
     
     public static class StatusUpdateRequest {

@@ -79,7 +79,8 @@ public class Booking {
     @JoinColumn(name = "event_id")
     private Event event;
     
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "time_slot_id", unique = true)
     private TimeSlot timeSlot;
     
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
